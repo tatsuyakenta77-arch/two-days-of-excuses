@@ -19,8 +19,23 @@ ENTRY = (
 OUTPUT_DIR = "/output"
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, "entry.txt")
 
+# The sealed gate: 1 to 200 characters, not only white space, one line.
+MAX_CHARS = 200
+
+
+def validate(entry: str) -> None:
+    """Fail loudly instead of shipping an entry the gate would refuse."""
+    if not entry.strip():
+        raise ValueError("entry is empty or only white space")
+    if len(entry) > MAX_CHARS:
+        raise ValueError(f"entry is {len(entry)} chars, over the 200 limit")
+    if "\n" in entry or "\r" in entry:
+        raise ValueError("entry must be a single line")
+    entry.encode("utf-8")
+
 
 def main() -> None:
+    validate(ENTRY)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="\n") as f:
         f.write(ENTRY + "\n")
